@@ -1,5 +1,5 @@
 //
-//  Image_SearchApp.swift
+//  ImageSearchApp.swift
 //  Image Search
 //
 //  Created by Robert Moyer on 2/16/23.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct Image_SearchApp: App {
+struct ImageSearchApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
