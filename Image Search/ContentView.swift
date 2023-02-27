@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var viewModel = PhotoListViewModel()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        List(viewModel.photos) { photo in
+            ImageCard(photo: photo)
         }
-        .padding()
+        .listStyle(.plain)
+        .onAppear {
+            viewModel.searchPhotos("race cars")
+        }
     }
 }
 

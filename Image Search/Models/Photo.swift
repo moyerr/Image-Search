@@ -7,18 +7,6 @@
 
 import Foundation
 
-struct Photographer: Identifiable, Decodable {
-    fileprivate enum CodingKeys: String, CodingKey {
-        case id = "photographer_id"
-        case name = "photographer"
-        case url = "photographer_url"
-    }
-
-    let id: Int
-    let name: String
-    let url: URL
-}
-
 struct Photo: Identifiable {
     struct Source: Decodable {
         let original: URL
