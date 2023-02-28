@@ -6,58 +6,103 @@
 //
 
 import UIKit
-import OSLog
 
-let log = Logger(subsystem: "demo-app", category: "PhotoClient")
-
-struct PhotoClient {
+struct NetworkClient {
     private let session = URLSession.shared
     private let decoder = JSONDecoder()
 
-    func search(_ searchTerm: String) -> AsyncStream<Page> {
+    func model<Model: Decodable>(
+        for endpoint: Endpoint
+    ) async throws -> Model {
+        let request = endpoint.urlRequest
+
+        Log.network.info("Making request to \(request.url?.absoluteString ?? "NO_URL")")
+
+        do {
+            let (data, _) = try await session.data(for: endpoint.urlRequest)
+            Log.network.info("Request completed successfully! Received \(data.description)")
+            return try data.decoded(using: decoder)
+        } catch {
+            Log.network.error("ERROR: \(error.localizedDescription)")
+            throw error
+        }
+    }
+}
+
+struct PhotoClient {
+    private let networkClient = NetworkClient()
+
+    func search(_ searchTerm: String) -> AsyncThrowingStream<Page, Error> {
         var currentPage: Page?
 
-        return AsyncStream {
-            log.debug("Unfolding stream")
+        return AsyncThrowingStream {
+            Log.stream.debug("Executing stream closure for page \(currentPage?.page ?? 0)")
 
-            do {
-                if currentPage != nil {
-                    if let nextPageUrl = currentPage?.nextPage {
-                        log.debug("\tFetching next page")
-                        currentPage = try await page(for: nextPageUrl)
-                        return currentPage
-                    } else {
-                        log.debug("\tNo more pages")
-                        return nil
-                    }
-                } else {
-                    log.debug("\tInitial fetch")
-                    currentPage = try await searchPhotos(searchTerm)
-                    return currentPage
-                }
-            } catch {
-                log.error("\(error.localizedDescription, privacy: .public)")
+            guard let lastPage = currentPage else {
+                Log.stream.debug("\tPerforming initial fetch")
+                currentPage = try await networkClient.model(for: .search(searchTerm))
+                return currentPage
+            }
+
+            if let nextPage = Endpoint.pageAfter(lastPage) {
+                Log.stream.debug("\tFetching next page...")
+                currentPage = try await networkClient.model(for: nextPage)
+                return currentPage
+            } else {
+                Log.stream.debug("\tNo more pages!")
                 return nil
             }
         }
     }
+}
 
-    func searchPhotos(_ searchTerm: String) async throws -> Page {
-        let encodedTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        let url = URL(string: "https://api.pexels.com/v1/search?query=\(encodedTerm)")!
-        return try await page(for: url)
+struct PagedPhotoSearch: AsyncSequence {
+    typealias Element = [Photo]
+
+    struct AsyncIterator: AsyncIteratorProtocol {
+        private var _next: () async throws -> [Photo]?
+
+        init<S: AsyncSequence>(_ sequence: S) where S.Element == Element {
+            var iterator = sequence.makeAsyncIterator()
+            self._next = { try await iterator.next() }
+        }
+
+        mutating func next() async throws -> [Photo]? {
+            try await _next()
+        }
     }
 
-    func page(for url: URL) async throws -> Page {
-        var request = URLRequest(url: url)
+    let searchTerm: String
 
-        request.setValue(
-            "kV1T51p7Nfud9vdnLhogcGFBOYpb8HMWdCtRjVbDmztRL4tBDMbzhNip",
-            forHTTPHeaderField: "Authorization"
+    func makeAsyncIterator() -> AsyncIterator {
+        AsyncIterator(
+            makePageStream()
+                .map(\.photos)
         )
+    }
 
-        let (data, _) = try await session.data(for: request)
+    private func makePageStream() -> AsyncThrowingStream<Page, Error> {
+        let networkClient = NetworkClient()
+        var currentPage: Page?
 
-        return try decoder.decode(Page.self, from: data)
+        return AsyncThrowingStream {
+            // This closure is called once for every iteration of the sequence
+            Log.stream.debug("Executing stream closure for page \(currentPage?.page ?? 0)")
+
+            guard let lastPage = currentPage else {
+                Log.stream.debug("\tPerforming initial fetch")
+                currentPage = try await networkClient.model(for: .search(searchTerm))
+                return currentPage
+            }
+
+            if let nextPage = Endpoint.pageAfter(lastPage) {
+                Log.stream.debug("\tFetching next page...")
+                currentPage = try await networkClient.model(for: nextPage)
+                return currentPage
+            } else {
+                Log.stream.debug("\tNo more pages!")
+                return nil
+            }
+        }
     }
 }
