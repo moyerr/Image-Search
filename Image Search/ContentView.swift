@@ -11,10 +11,22 @@ struct ContentView: View {
     @StateObject private var viewModel = PhotoListViewModel()
 
     var body: some View {
-        List(viewModel.photos) { photo in
-            ImageCard(photo: photo)
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ]
+            ) {
+                ForEach(viewModel.photos) { photo in
+                    ImageCard(photo: photo)
+                        .onAppear {
+                            Log.views.debug("Photo view appear \(photo.id) - \(photo.altText)")
+                        }
+                }
+            }
         }
-        .listStyle(.plain)
         .onAppear {
             viewModel.searchPhotos("race cars")
         }
