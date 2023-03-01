@@ -29,33 +29,6 @@ struct NetworkClient {
     }
 }
 
-struct PhotoClient {
-    private let networkClient = NetworkClient()
-
-    func search(_ searchTerm: String) -> AsyncThrowingStream<Page, Error> {
-        var currentPage: Page?
-
-        return AsyncThrowingStream {
-            Log.stream.debug("Executing stream closure for page \(currentPage?.page ?? 0)")
-
-            guard let lastPage = currentPage else {
-                Log.stream.debug("\tPerforming initial fetch")
-                currentPage = try await networkClient.model(for: .search(searchTerm))
-                return currentPage
-            }
-
-            if let nextPage = Endpoint.pageAfter(lastPage) {
-                Log.stream.debug("\tFetching next page...")
-                currentPage = try await networkClient.model(for: nextPage)
-                return currentPage
-            } else {
-                Log.stream.debug("\tNo more pages!")
-                return nil
-            }
-        }
-    }
-}
-
 struct PagedPhotoSearch: AsyncSequence {
     typealias Element = [Photo]
 
