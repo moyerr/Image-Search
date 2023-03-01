@@ -12,25 +12,27 @@ struct ContentView: View {
 
     var body: some View {
         ScrollView {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ]
-            ) {
-                ForEach(viewModel.photos) { photo in
-                    ImageCard(photo: photo)
-                        .onAppear {
-                            Log.views.debug("Photo view appear \(photo.id) - \(photo.altText)")
-                            viewModel.loadMoreIfNeeded(current: photo)
-                        }
+            Group {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ]
+                ) {
+                    ForEach(viewModel.photos) { photo in
+                        ImageCard(photo: photo)
+                            .onAppear {
+                                Log.views.debug("Photo view appear \(photo.id) - \(photo.altText)")
+                                viewModel.loadMoreIfNeeded(current: photo)
+                            }
+                    }
                 }
-            }
-            
-            if viewModel.isLoadingMoreContent {
-                ProgressView("Loading More Results...")
-            }
+
+                if viewModel.isLoadingMoreContent {
+                    ProgressView(viewModel.loadingText)
+                }
+            }.padding(8)
         }
         .onAppear {
             viewModel.searchPhotos("race cars")

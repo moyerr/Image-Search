@@ -21,6 +21,9 @@ final class PhotoListViewModel: ObservableObject {
     private var iterate: () async throws -> [Photo] = { throw Error.noSearch }
 
     var isLoadingMoreContent: Bool { loadingTask != nil }
+    var loadingText: String {
+        photos.isEmpty ? "Loading..." : "Loading More Results..."
+    }
 
     func searchPhotos(_ searchTerm: String) {
         var iterator = PagedPhotoSearch(searchTerm: searchTerm)

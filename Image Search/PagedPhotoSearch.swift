@@ -1,33 +1,11 @@
 //
-//  ImageLoader.swift
+//  PagedPhotoSearch.swift
 //  Image Search
 //
 //  Created by Robert Moyer on 2/16/23.
 //
 
-import UIKit
-
-struct NetworkClient {
-    private let session = URLSession.shared
-    private let decoder = JSONDecoder()
-
-    func model<Model: Decodable>(
-        for endpoint: Endpoint
-    ) async throws -> Model {
-        let request = endpoint.urlRequest
-
-        Log.network.info("Making request to \(request.url?.absoluteString ?? "NO_URL")")
-
-        do {
-            let (data, _) = try await session.data(for: endpoint.urlRequest)
-            Log.network.info("Request completed successfully! Received \(data.description)")
-            return try data.decoded(using: decoder)
-        } catch {
-            Log.network.error("ERROR: \(error.localizedDescription)")
-            throw error
-        }
-    }
-}
+import Foundation
 
 struct PagedPhotoSearch: AsyncSequence {
     typealias Element = [Photo]
