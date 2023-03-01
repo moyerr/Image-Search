@@ -23,8 +23,13 @@ struct ContentView: View {
                     ImageCard(photo: photo)
                         .onAppear {
                             Log.views.debug("Photo view appear \(photo.id) - \(photo.altText)")
+                            viewModel.loadMoreIfNeeded(current: photo)
                         }
                 }
+            }
+            
+            if viewModel.isLoadingMoreContent {
+                ProgressView("Loading More Results...")
             }
         }
         .onAppear {

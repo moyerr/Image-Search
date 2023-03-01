@@ -87,7 +87,7 @@ struct PagedPhotoSearch: AsyncSequence {
 
         return AsyncThrowingStream {
             // This closure is called once for every iteration of the sequence
-            Log.stream.debug("Executing stream closure for page \(currentPage?.page ?? 0)")
+            Log.stream.debug("Executing stream closure for page \((currentPage?.page ?? 0) + 1)")
 
             guard let lastPage = currentPage else {
                 Log.stream.debug("\tPerforming initial fetch")
