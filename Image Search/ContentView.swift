@@ -23,13 +23,13 @@ struct ContentView: View {
                     ForEach(viewModel.photos) { photo in
                         ImageCard(photo: photo)
                             .onAppear {
-                                Log.views.debug("Photo view appear \(photo.id) - \(photo.altText)")
-                                viewModel.loadMoreIfNeeded(current: photo)
+                                Log.view.debug("Photo did appear \(photo.id) - \(photo.altText)")
+                                viewModel.loadMoreIfNeeded(currentItem: photo)
                             }
                     }
                 }
 
-                if viewModel.isLoadingMoreContent {
+                if viewModel.isLoading {
                     ProgressView(viewModel.loadingText)
                 }
             }.padding(8)

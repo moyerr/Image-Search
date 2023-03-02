@@ -38,20 +38,17 @@ struct PagedPhotoSearch: AsyncSequence {
 
         return AsyncThrowingStream {
             // This closure is called once for every iteration of the sequence
-            Log.stream.debug("Executing stream closure for page \((currentPage?.page ?? 0) + 1)")
+            Log.sequence.debug("PagedPhotoSearch - Executing closure for page \((currentPage?.page ?? 0) + 1)")
 
             guard let lastPage = currentPage else {
-                Log.stream.debug("\tPerforming initial fetch")
                 currentPage = try await networkClient.model(for: .search(searchTerm))
                 return currentPage
             }
 
             if let nextPage = Endpoint.pageAfter(lastPage) {
-                Log.stream.debug("\tFetching next page...")
                 currentPage = try await networkClient.model(for: nextPage)
                 return currentPage
             } else {
-                Log.stream.debug("\tNo more pages!")
                 return nil
             }
         }

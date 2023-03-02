@@ -5,68 +5,53 @@
 //  Created by Robert Moyer on 2/24/23.
 //
 
+import AsyncAlgorithms
 import Foundation
 
 @MainActor
 final class PhotoListViewModel: ObservableObject {
-    enum Error: Swift.Error {
-        case sequenceCompleted
-        case noSearch
-    }
-
     @Published var photos: [Photo] = []
     @Published var errorMessage: String?
-    @Published private var loadingTask: Task<[Photo], Swift.Error>?
+    @Published var isLoading = false
 
-    private var iterate: () async throws -> [Photo] = { throw Error.noSearch }
+    private var continuation: AsyncStream<Void>.Continuation?
 
-    var isLoadingMoreContent: Bool { loadingTask != nil }
     var loadingText: String {
         photos.isEmpty ? "Loading..." : "Loading More Results..."
     }
 
     func searchPhotos(_ searchTerm: String) {
-        var iterator = PagedPhotoSearch(searchTerm: searchTerm)
-            .makeAsyncIterator()
-
-        iterate = {
-            guard let nextBatch = try await iterator.next() else {
-                throw Error.sequenceCompleted
+        let photoSearch = PagedPhotoSearch(searchTerm: searchTerm)
+            .yeilded { continuation in
+                self.continuation = continuation
             }
 
-            return nextBatch
+        Task {
+            do {
+                for try await batch in photoSearch {
+                    Log.view.debug("Reached inside for loop")
+                    isLoading = false
+                    self.photos += batch
+                }
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
 
-        loadMoreIfNeeded(current: nil)
+        loadMore()
     }
 
-    func loadMoreIfNeeded(current: Photo?) {
-        guard let current else {
-            Task { await loadMore() }
-            return
-        }
-
-        if current.id == photos.last?.id {
-            Task { await loadMore() }
+    func loadMoreIfNeeded(currentItem: Photo) {
+        if currentItem.id == photos.last?.id {
+            loadMore()
         }
     }
 
-    private func loadMore() async {
-        guard !isLoadingMoreContent else { return }
-
-        let task = Task {
-            try await Task.sleep(for: .seconds(3))
-            return try await iterate()
-        }
-        
-        loadingTask = task
-
-        do {
-            photos += try await task.value
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-
-        loadingTask = nil
+    private func loadMore() {
+        guard !isLoading else { return }
+        let continuationNil = "\(continuation == nil)"
+        Log.view.debug("PhotoListViewModel.loadMore() | \(continuationNil)")
+        isLoading = true
+        continuation?.yield()
     }
 }

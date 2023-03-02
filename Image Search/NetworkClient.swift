@@ -19,6 +19,7 @@ struct NetworkClient {
         Log.network.info("Making request to \(request.url?.absoluteString ?? "NO_URL")")
 
         do {
+            try await Task.sleep(for: .seconds(3))
             let (data, _) = try await session.data(for: endpoint.urlRequest)
             Log.network.info("Request completed successfully! Received \(data.description)")
             return try data.decoded(using: decoder)

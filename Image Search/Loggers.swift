@@ -12,6 +12,6 @@ enum Log {
 
     static let network = Logger(subsystem: subsystem, category: "Networking")
     static let app = Logger(subsystem: subsystem, category: "App Lifecycle")
-    static let views = Logger(subsystem: subsystem, category: "View Layer")
-    static let stream = Logger(subsystem: subsystem, category: "AsyncStream")
+    static let view = Logger(subsystem: subsystem, category: "View Layer")
+    static let sequence = Logger(subsystem: subsystem, category: "AsyncSequence")
 }
