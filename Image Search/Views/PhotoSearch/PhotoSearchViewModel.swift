@@ -26,18 +26,17 @@ final class PhotoSearchViewModel: ObservableObject {
 
   private func monitorSearchTerm() {
     let searchTerms = $searchText.values
-      .debounce(for: .seconds(1))
+      .debounce(for: .seconds(0.5))
 
     Task {
       for await term in searchTerms {
-        guard !term.isEmpty else { continue }
-
-        Log.view.debug("PhotoSearchViewModel - Received new search term \(term)")
-
         searchTask?.cancel()
         photos = []
         isLoading = false
 
+        guard !term.isEmpty else { continue }
+
+        Log.view.debug("PhotoSearchViewModel - Received new search term \(term)")
         searchPhotos(term)
       }
     }
