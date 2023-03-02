@@ -1,13 +1,13 @@
 //
-//  ContentView.swift
+//  PhotoListView.swift
 //  Image Search
 //
-//  Created by Robert Moyer on 2/16/23.
+//  Created by Robert Moyer on 3/2/23.
 //
 
 import SwiftUI
 
-struct ContentView: View {
+struct PhotoListView: View {
     @StateObject private var viewModel = PhotoListViewModel()
 
     var body: some View {
@@ -40,8 +40,8 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct PhotoListView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        PhotoListView()
     }
 }
