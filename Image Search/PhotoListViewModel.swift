@@ -22,14 +22,14 @@ final class PhotoListViewModel: ObservableObject {
 
     func searchPhotos(_ searchTerm: String) {
         let photoSearch = PagedPhotoSearch(searchTerm: searchTerm)
-            .yeilded { continuation in
+            .demanded { continuation in
                 self.continuation = continuation
             }
 
         Task {
             do {
                 for try await batch in photoSearch {
-                    Log.view.debug("Reached inside for loop")
+                    Log.view.debug("PhotoListViewModel - Received new batch of photos")
                     isLoading = false
                     self.photos += batch
                 }
@@ -38,19 +38,17 @@ final class PhotoListViewModel: ObservableObject {
             }
         }
 
-        loadMore()
+        loadMoreIfNeeded(currentItem: nil)
     }
 
-    func loadMoreIfNeeded(currentItem: Photo) {
-        if currentItem.id == photos.last?.id {
-            loadMore()
-        }
-    }
+    func loadMoreIfNeeded(currentItem: Photo?) {
+        guard
+            !isLoading,                         // Only request more if loading is not in progress
+            currentItem?.id == photos.last?.id  // Only request more if we have reached the last item
+        else { return }
 
-    private func loadMore() {
-        guard !isLoading else { return }
-        let continuationNil = "\(continuation == nil)"
-        Log.view.debug("PhotoListViewModel.loadMore() | \(continuationNil)")
+        Log.view.debug("PhotoListViewModel - Reached last item. Loading more...")
+
         isLoading = true
         continuation?.yield()
     }

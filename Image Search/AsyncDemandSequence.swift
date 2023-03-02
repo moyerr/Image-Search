@@ -1,11 +1,11 @@
 //
-//  AsyncYeildingSequence.swift
+//  AsyncDemandSequence.swift
 //  Image Search
 //
 //  Created by Robert Moyer on 3/2/23.
 //
 
-struct AsyncYeildingSequence<Base: AsyncSequence>: AsyncSequence {
+struct AsyncDemandSequence<Base: AsyncSequence>: AsyncSequence {
     typealias Element = Base.Element
     typealias Continuation = AsyncStream<Void>.Continuation
 
@@ -22,9 +22,9 @@ struct AsyncYeildingSequence<Base: AsyncSequence>: AsyncSequence {
         }
 
         mutating func next() async throws -> Base.AsyncIterator.Element? {
-            Log.sequence.debug("AsyncYeildingSequence - begin iteration. Awaiting demand...")
+            Log.sequence.debug("AsyncDemandSequence - begin iteration. Awaiting demand...")
             await demandIterator.next()
-            Log.sequence.debug("AsyncYeildingSequence - Demand received! Continuing...")
+            Log.sequence.debug("AsyncDemandSequence - Demand received! Continuing...")
             return try await baseIterator.next()
         }
     }
@@ -46,9 +46,9 @@ struct AsyncYeildingSequence<Base: AsyncSequence>: AsyncSequence {
 }
 
 extension AsyncSequence {
-    func yeilded(
-        by continuation: (AsyncYeildingSequence.Continuation) -> Void
-    ) -> AsyncYeildingSequence<Self> {
+    func demanded(
+        by continuation: (AsyncDemandSequence.Continuation) -> Void
+    ) -> AsyncDemandSequence<Self> {
         .init(self, continuation)
     }
 }
