@@ -14,7 +14,7 @@ final class PhotoListViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading = false
 
-    private var continuation: AsyncStream<Void>.Continuation?
+    private var continuation: AsyncDemandSequence.Continuation?
 
     var loadingText: String {
         photos.isEmpty ? "Loading..." : "Loading More Results..."
