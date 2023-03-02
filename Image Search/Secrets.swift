@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Secrets: Codable {
+struct Secrets: Decodable {
   private enum CodingKeys: String, CodingKey {
     case apiKey = "api-key"
   }

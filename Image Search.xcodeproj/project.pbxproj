@@ -132,18 +132,18 @@
 		4EE5E871299ED41A00573582 /* Image Search */ = {
 			isa = PBXGroup;
 			children = (
+				4ED5BB3C29B12535008CBF54 /* Secrets.plist */,
 				4ED5BB3329B0EDCF008CBF54 /* AsyncDemandSequence.swift */,
 				4EE5E872299ED41A00573582 /* ImageSearchApp.swift */,
 				4EC881FB29AEA3130050F240 /* Loggers.swift */,
 				4ED5BB2E29AFFA34008CBF54 /* NetworkClient.swift */,
 				4EE5E883299EDB7200573582 /* PagedPhotoSearch.swift */,
+				4ED5BB3E29B12568008CBF54 /* Secrets.swift */,
 				4EE5E876299ED41D00573582 /* Assets.xcassets */,
 				4EB22FF629A915A800BEB342 /* Extensions */,
 				4EE5E880299ED4B900573582 /* Models */,
 				4EE5E878299ED41D00573582 /* Preview Content */,
 				4EB22FF329A9149A00BEB342 /* Views */,
-				4ED5BB3C29B12535008CBF54 /* Secrets.plist */,
-				4ED5BB3E29B12568008CBF54 /* Secrets.swift */,
 			);
 			path = "Image Search";
 			sourceTree = "<group>";
