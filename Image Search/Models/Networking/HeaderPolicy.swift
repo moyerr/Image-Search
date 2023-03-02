@@ -10,24 +10,24 @@ import Foundation
 // MARK: HeaderPolicy
 
 protocol HeaderPolicy {
-    func makeHTTPHeaders() -> [String: String]
+  func makeHTTPHeaders() -> [String: String]
 }
 
 // MARK: PexelHeaderPolicy
 
 struct PexelHeaderPolicy: HeaderPolicy {
-    private let apiKey = "kV1T51p7Nfud9vdnLhogcGFBOYpb8HMWdCtRjVbDmztRL4tBDMbzhNip"
+  @Secret(\.apiKey) private var key
 
-    func makeHTTPHeaders() -> [String: String] {
-        [
-            "Authorization": apiKey,
-            "Content-Type": "application/json"
-        ]
-    }
+  func makeHTTPHeaders() -> [String: String] {
+    [
+      "Authorization": key,
+      "Content-Type": "application/json"
+    ]
+  }
 }
 
 // MARK: NoHeaderPolicy
 
 struct NoHeaderPolicy: HeaderPolicy {
-    func makeHTTPHeaders() -> [String : String] { [:] }
+  func makeHTTPHeaders() -> [String : String] { [:] }
 }

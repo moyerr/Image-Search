@@ -88,3 +88,6 @@ fastlane/test_output
 
 iOSInjectionProject/
 .DS_Store
+
+# Secrets
+Image Search/Secrets.plist
