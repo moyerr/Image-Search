@@ -44,7 +44,7 @@ final class PhotoSearchViewModel: ObservableObject {
   }
 
   private func searchPhotos(_ searchTerm: String) {
-    let photoSearch = PagedPhotoSearch(searchTerm: searchTerm)
+    let photoSearch = PagedPhotoSearch(searchTerm: searchTerm, resultsPerPage: 30)
       .demanded { continuation in
         self.continuation = continuation
       }

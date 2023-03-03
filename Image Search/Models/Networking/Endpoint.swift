@@ -51,11 +51,17 @@ struct Endpoint {
 // MARK: - Endpoint Definitions
 
 extension Endpoint {
-    static func search(_ searchTerm: String) -> Endpoint {
+    static func search(
+      _ searchTerm: String,
+      resultsPerPage: Int
+    ) -> Endpoint {
         .init(
             urlBuilder: .pexels("search"),
             headerPolicy: PexelHeaderPolicy(),
-            method: .get([URLQueryItem(name: "query", value: searchTerm)])
+            method: .get([
+              URLQueryItem(name: "query", value: searchTerm),
+              URLQueryItem(name: "per_page", value: "\(resultsPerPage)")
+            ])
         )
     }
 

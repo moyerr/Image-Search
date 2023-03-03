@@ -24,6 +24,7 @@ struct PagedPhotoSearch: AsyncSequence {
   }
 
   let searchTerm: String
+  var resultsPerPage: Int = 15
 
   func makeAsyncIterator() -> AsyncIterator {
     AsyncIterator(
@@ -44,7 +45,10 @@ struct PagedPhotoSearch: AsyncSequence {
 
       guard let lastPage = currentPage else {
         // 1️⃣ - If there is no currentPage, execute the first search
-        currentPage = try await networkClient.model(for: .search(searchTerm))
+        currentPage = try await networkClient.model(
+          for: .search(searchTerm, resultsPerPage: resultsPerPage)
+        )
+
         return currentPage
       }
 
