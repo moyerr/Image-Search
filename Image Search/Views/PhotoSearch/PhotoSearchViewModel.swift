@@ -28,17 +28,19 @@ final class PhotoSearchViewModel: ObservableObject {
     let searchTerms = $searchText.values
       .debounce(for: .seconds(0.5))
 
-    Task {
+    Task { [weak self] in
+      
       for await term in searchTerms {
+        guard let self else { return }
         guard !term.isEmpty else { continue }
 
         Log.view.debug("PhotoSearchViewModel - Received new search term \(term)")
 
-        searchTask?.cancel()
-        photos = []
-        isLoading = false
+        self.searchTask?.cancel()
+        self.photos = []
+        self.isLoading = false
 
-        searchPhotos(term)
+        self.searchPhotos(term)
       }
     }
   }
@@ -49,18 +51,20 @@ final class PhotoSearchViewModel: ObservableObject {
         self.continuation = continuation
       }
 
-    searchTask = Task {
+    searchTask = Task { [weak self] in
+
       do {
         for try await batch in photoSearch {
+          guard let self else { return }
           Log.view.debug("PhotoSearchViewModel - Received new batch of photos")
-          isLoading = false
+          self.isLoading = false
 
           guard !Task.isCancelled else { break }
 
           self.photos += batch
         }
       } catch {
-        errorMessage = error.localizedDescription
+        self?.errorMessage = error.localizedDescription
       }
     }
 
